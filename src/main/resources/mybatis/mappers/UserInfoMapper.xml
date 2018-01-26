@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tarena.ht.mapper.UserInfoMapper">
+
+	
+	
+	<delete id="deleteUserInfo">
+		delete from user_info_p where user_info_id in
+		<foreach collection="array" item="userId" open="(" close=")" separator=",">
+			#{userId}
+		</foreach>
+	</delete>
+	
+	
+	<insert id="saveUserInfo">
+		insert into user_info_p (user_info_id,name,card_no,manager_id,join_date,salary,birthday,gender,station,telephone,user_level,remark,order_no) 
+		values(#{userInfoId},#{name},#{cardNo},#{manager.userInfoId},#{joinDate},#{salary},#{birthday},#{gender},#{station},#{telephone},#{userLevel},#{remark},#{orderNo})
+	</insert>
+	
+	<update id="update">
+		update user_info_p set name=#{name},card_no=#{cardNo},manager_id=#{manager.userInfoId},join_date=#{joinDate},salary=#{salary},
+		birthday=#{birthday},gender=#{gender},station=#{station},telephone=#{telephone},user_level=#{userLevel},remark=#{remark},order_no=#{orderNo}
+		where user_info_id=#{userInfoId}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

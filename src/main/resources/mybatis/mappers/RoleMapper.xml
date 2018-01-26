@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tarena.ht.mapper.RoleMapper">
+
+	<delete id="delete">
+		delete from role_p where role_id in
+		<foreach collection="array" item="roleId" open="(" close=")" separator=",">
+			#{roleId}
+		</foreach>
+	</delete>
+	
+	<insert id="saveRoleModule">
+		insert into role_module_p (role_id,module_id) values
+		<foreach collection="moduleIds" item="moduleId" separator=",">
+			(#{roleId},#{moduleId})
+		</foreach>
+	</insert>
+	
+	<delete id="deleteRoleModules">
+		delete from role_module_p where role_id in
+		<foreach collection="array" item="roleId" open="(" close=")" separator=",">
+			#{roleId}
+		</foreach>
+	</delete>
+	<delete id="deleteRoleUser">
+		delete from role_user_p where role_id in
+		<foreach collection="array" item="roleId" open="(" close=")" separator=",">
+			#{roleId}
+		</foreach>
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

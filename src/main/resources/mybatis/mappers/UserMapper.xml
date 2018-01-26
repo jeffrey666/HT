@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tarena.ht.mapper.UserMapper">
+
+<sql id="findUser">
+	SELECT * FROM 
+	(SELECT * FROM 
+	user_p u
+	LEFT JOIN
+	(SELECT user_info_id,NAME,CARD_NO,JOIN_DATE,SALARY,BIRTHDAY,GENDER,STATION,TELEPHONE,USER_LEVEL,REMARK,ORDER_NO,m_id,m_name FROM 
+	user_info_p ui
+	LEFT JOIN
+	(SELECT user_info_id m_id,NAME m_name FROM user_info_p) mui
+	ON ui.MANAGER_ID=mui.m_id)ui
+	ON u.user_id=ui.USER_INFO_ID)u
+	LEFT JOIN
+	(SELECT dept_id p_id,dept_name p_name FROM dept_p ) p
+	ON u.DEPT_ID=p.p_id
+</sql>
+
+	<resultMap type="User" id="userRM" autoMapping="true">
+		<id property="userId" column="user_id"/>
+		<association property="dept" javaType="Dept">
+			<id column="P_id" property="deptId"/>
+			<result column="p_name" property="deptName"/>
+		</association>
+		<association property="userInfo" javaType="UserInfo">
+			<id column="user_info_id" property="userInfoId"/>
+			<result column="name" property="name"/>
+			<result column="card_no" property="cardNo"/>
+			<result column="join_date" property="joinDate"/>
+			<result column="salary" property="salary"/>
+			<result column="birthday" property="birthday"/>
+			<result column="gender" property="gender"/>
+			<result column="station" property="station"/>
+			<result column="telephone" property="telephone"/>
+			<result column="user_level" property="userLevel"/>
+			<result column="remark" property="remark"/>
+			<result column="order_no" property="orderNo"/>
+			<association property="manager" javaType="UserInfo">
+				<id column="m_id" property="userInfoId"/>
+				<result column="m_name" property="name"/>
+			</association>
+		</association>
+	</resultMap>
+	<!-- 查询所有用户 -->
+	<select id="findAll" resultMap="userRM">
+		<include refid="findUser"/>
+		
+	</select>
+	
+	<!-- 修改状态 -->
+	<update id="changeState">
+		update user_p set state=#{state} where user_id in
+		<foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+			#{userId}
+		</foreach>
+	</update>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteUser">
+		delete from user_p where user_id in
+		<foreach collection="array" item="userId" open="(" close=")" separator=",">
+			#{userId}
+		</foreach>
+	</delete>
+	
+	<!-- 新增用户 -->
+	<insert id="saveUser">
+		insert into user_p (user_id,dept_id,username,password,state,create_time)
+		values(#{userId},#{dept.deptId},#{username},#{password},#{state},#{createTime})
+	</insert>
+	
+	
+	<!-- 查询单个用户 -->
+	<select id="findOne" resultMap="userRM">
+		<include refid="findUser"/> where user_id =#{userId}
+	</select>
+	
+	<!-- 修改用户 -->
+	<update id="update">
+		update user_p set dept_id=#{dept.deptId},username=#{username},password = #{password},state=#{state},create_time=#{createTime}
+		where user_id =#{userId}
+	</update>
+	<!-- 插入用户角色表 -->
+	<insert id="saveUserRole">
+		insert into role_user_p (role_id,user_id) values
+		<foreach collection="roleIds" item="roleId" separator=",">
+			(#{roleId},#{userId})
+		</foreach>
+	</insert>
+	
+	<!-- 所属部门删除时相应删除用户部门信息 -->
+	<update id="deleteDept">
+		update user_p set dept_id="" where dept_id in
+		<foreach collection="array" item="deptId" separator="," open="(" close=")">
+			#{deptId}
+		</foreach>
+	</update>
+	
+	<!-- 用户删除时同时删除用户角色关系 -->
+	<delete id="deleteUserRoleByUId">
+		delete from role_user_p where user_id in
+		<foreach collection="array" item="userId" open="(" close=")" separator=",">
+			#{userId}
+		</foreach>
+	</delete>
+	
+	<!-- 根据用户名密码查找用户 -->
+	<select id="findUser" resultMap="userRM">
+		<include refid="findUser"/> where username=#{username} and password=#{password}
+	</select>
+	
+	<select id="findOneByUsername" resultMap="userRM">
+		
+		<include refid="findUser"/> where username=#{username}
+	
+	</select>
+	
+	<select id="findModulesBy" resultType="String">
+		
+
+	SELECT NAME FROM module_p WHERE module_id IN(
+	SELECT module_id FROM role_module_p WHERE role_id IN 
+	(SELECT role_id FROM role_user_p WHERE user_id=#{userId}));
+
+
+		
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
